@@ -73,6 +73,12 @@ export default {
   fetch(req: Request, env: Env, ctx: ExecutionContext) {
     // A base_url with a trailing slash makes clients call //api/v1/...; normalise it.
     const url = new URL(req.url);
+    // Always HTTPS: tokens must never travel unencrypted. 308 keeps the method and body (phones POST events).
+    // Local development (localhost, 127.0.0.1) stays on plain http.
+    if (url.protocol === "http:" && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(url.hostname) && !url.hostname.endsWith(".localhost")) {
+      url.protocol = "https:";
+      return Response.redirect(url.toString(), 308);
+    }
     // www.example.com → example.com, keeping the path (people often type www).
     if (url.hostname.startsWith("www.")) {
       url.hostname = url.hostname.slice(4);
