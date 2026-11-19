@@ -15,9 +15,9 @@ Ship bug fixes and UI changes to your users' phones in minutes, without waiting 
 
 ```mermaid
 flowchart LR
-  dev["Your computer or GitHub Actions<br/>aeron CLI signs the update<br/>with your private key"] -->|publish| server["Aeron on your Cloudflare account<br/>Worker + D1 + R2"]
-  admin["Second person<br/>Aeron dashboard"] -->|approve, roll out| server
-  server -->|signed update, 10% → 100%| phones["Users' phones<br/>verify the signature,<br/>switch on next launch"]
+  dev["Your computer or CI<br/>signs the update"] -->|publish| server["Aeron<br/>on your Cloudflare"]
+  admin["Second person<br/>in the dashboard"] -->|approve| server
+  server -->|"10% → 100%"| phones["Phones verify it,<br/>then update"]
 ```
 
 1. **Publish.** You change your code and run `aeron expo publish` or `aeron flutter patch`. The CLI builds the update and signs it with your private key.
