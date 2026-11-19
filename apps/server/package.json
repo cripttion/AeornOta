@@ -1,0 +1,25 @@
+{
+  "name": "@aeron/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node ../../scripts/sync-docs.mjs && node ../../scripts/build-cli.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply aeron --local",
+    "db:migrate:remote": "wrangler d1 migrations apply aeron --remote",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "predeploy": "node ../../scripts/sync-docs.mjs && node ../../scripts/build-cli.mjs"
+  },
+  "dependencies": {
+    "hono": "4.13.16"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.23.0",
+    "@cloudflare/workers-types": "5.20261104.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12",
+    "wrangler": "4.157.0"
+  }
+}

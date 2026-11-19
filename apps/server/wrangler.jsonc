@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aeron",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  // Dashboard (static files) is served from ./public; the Worker runs first so API routes win.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "aeron",
+      // Replaced by `scripts/setup-cloudflare.sh` (or paste the id from `wrangler d1 create aeron`).
+      "database_id": "07715acd-4db0-4eb0-aad5-0a5b709b66c9",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "aeron"
+    }
+  ],
+  "vars": {
+    // Public origin of this Worker, e.g. https://ota.example.com (used in download URLs).
+    // Local dev overrides this in .dev.vars (PUBLIC_BASE_URL=http://localhost:8787).
+    "PUBLIC_BASE_URL": "https://aeron.cripttion.workers.dev",
+    // Optional: an R2 custom domain that serves the bucket directly (cheapest at scale).
+    // Leave empty to serve files through this Worker at /files/<sha256>.
+    "FILES_BASE_URL": "",
+    // Fraction (0..1) of device events written to D1. Lower it if you approach D1 write limits.
+    "EVENT_SAMPLE_RATE": "1"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // Secrets (set with `wrangler secret put NAME`, never in this file):
+  //   BOOTSTRAP_ADMIN_TOKEN  one-time admin token used to create the first real token
+}

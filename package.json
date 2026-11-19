@@ -1,0 +1,21 @@
+{
+  "name": "aeron",
+  "private": true,
+  "description": "Self-hosted, signed over-the-air updates for Expo/React Native and Flutter (Shorebird-compatible) apps on Cloudflare.",
+  "workspaces": [
+    "apps/server",
+    "packages/cli"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "npm run dev -w @aeron/server",
+    "test": "npm test -w @aeron/server && npm test -w @aeron/cli",
+    "typecheck": "npm run typecheck -w @aeron/server && npm run typecheck -w @aeron/cli",
+    "build:cli": "npm run build -w @aeron/cli",
+    "build:cli-bundle": "node scripts/build-cli.mjs",
+    "cli:install": "npm run build:cli && npm install -g ./packages/cli"
+  }
+}
