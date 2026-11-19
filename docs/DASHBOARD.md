@@ -9,7 +9,7 @@ The dashboard is where you **check, approve, control and watch** updates. Publis
 Open `/dashboard` on your Aeron address (for example `https://aeronota.online/dashboard`), paste your access token and click **Sign in**. The address itself (`/`) is the project website, and `/docs` opens these guides. The browser keeps it on this device only; untick **Keep me signed in** on shared computers.
 
 - **First time:** use the one-time setup token printed by `npm run setup` (see [Set up your Aeron server](SETUP.md)), create your own admin token under **Access tokens**, then delete the setup token (the dashboard reminds you).
-- **With Cloudflare Access:** you sign in with your company account first, then paste your token.
+- **With Cloudflare Access:** opening `/dashboard` first asks for your email and a one-time code (or your company login). Then paste your token as usual.
 
 | Role | Can |
 |---|---|

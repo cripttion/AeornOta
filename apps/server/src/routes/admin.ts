@@ -120,7 +120,9 @@ admin.get("/apps", async (c) => {
 });
 
 admin.post("/apps", async (c) => {
-  await requireHuman(c);
+  // Not login-only: a new app reaches no phone until a store build is shipped with its key. This keeps
+  // `aeron expo init` / `aeron flutter init` working with an admin token when Cloudflare Access is on.
+  assertRole(c, "admin");
   const body = await readJson<{ id?: string; name?: string; kind?: string }>(c);
   const id = requireMatch(body.id, APP_ID_RE, "app id (lowercase letters, digits, dashes; 2-40 chars)");
   const kind = body.kind;

@@ -13,7 +13,7 @@
 | 3. Signed builds only | Expo builds without a code signing certificate never receive updates. Flutter apps require signed releases | Aeron server |
 | 4. Keys are locked | A key id can't be re-pointed to a different key. A Flutter app's patch key and its signing requirement can't be changed once it has live releases. The break-glass switch exists only in your Cloudflare account | Aeron server |
 | 5. Four-eyes approval (on by default) | New code waits under **Approvals** until an admin approves it with a different token than the one that published it (or minted it) | Aeron server |
-| 6. Human sign-in for sensitive actions (optional, recommended) | With Cloudflare Access, approving, and changing keys, tokens, trust rules or policies needs a person signed in with SSO + MFA. Tokens alone aren't enough | Cloudflare Access + Aeron server |
+| 6. Human sign-in for sensitive actions (optional, recommended) | With Cloudflare Access, approving or rejecting new code, creating or revoking tokens, changing or retiring keys, GitHub trust rules, the approval policy and deleting apps need a person signed in to the dashboard. Tokens alone aren't enough | Cloudflare Access + Aeron server |
 | 7. No stored CI tokens | GitHub Actions use OIDC for one-hour, single-app tokens tied to a repository and branch | Aeron server |
 | 8. Short-lived, scoped tokens | Tokens have roles, optional app limits and expiry (90 days by default). Only their SHA-256 hash is stored | Aeron server |
 | 9. Alerts and audit log | Every submit, approve, reject, halt, undo, rollback, key, token, trust or policy change is logged and can be posted to Slack or Discord | Aeron server |
@@ -36,13 +36,13 @@ The dashboard's **Security** page shows these with live status.
 
 1. **Keep approvals on** for every app (each app's **Settings** tab).
 2. **Use separate tokens.** Admin tokens are for the dashboard only. Publish with a publisher token limited to the app, or with GitHub OIDC.
-3. **Turn on Cloudflare Access** (free for up to 50 users). It needs a custom domain:
+3. **Optional: turn on Cloudflare Access** (free for up to 50 users). Worth it once several people have admin access. It needs a custom domain:
    1. Cloudflare dashboard → **Zero Trust → Access → Applications → Add → Self-hosted**.
-      - Domain: your Aeron domain, with two paths: `/dashboard` and `/api/admin/*`.
-      - Policy: allow your emails, require MFA through your identity provider or one-time PIN.
-      - Everything else stays public, as it must: the website and docs, and the paths phones, the shorebird CLI and GitHub Actions use.
+      - Domain: your Aeron domain, path `/dashboard`.
+      - Policy: allow your emails. Sign-in with a one-time PIN (a code Cloudflare emails you) works out of the box; add Google or GitHub login with two-step verification for stronger MFA.
+      - Everything else stays public, as it must: the website and docs, and the paths phones, the CLI, the shorebird CLI and GitHub Actions use. Aeron itself checks your Access login (a signed cookie) for sensitive actions.
    2. Put the application's **AUD** tag and your team domain in `apps/server/wrangler.jsonc` → `vars`: `"ACCESS_TEAM_DOMAIN": "yourteam.cloudflareaccess.com"` and `"ACCESS_AUD": "<aud>"`. Then deploy (`npm run setup`).
-   3. CLI calls to `/api/admin` from automation need an Access **service token**: set `AERON_CF_ACCESS_CLIENT_ID` / `AERON_CF_ACCESS_CLIENT_SECRET`. Service tokens can publish, but they can never approve.
+   3. Nothing changes for the CLI or GitHub Actions: publishing, rollouts and setting up a new app (`aeron expo init`, `aeron flutter init`) keep working with tokens. What needs the login is listed below.
 4. **Set up alerts:** `npx wrangler secret put NOTIFY_WEBHOOK_URL` with a Slack or Discord incoming webhook. Then **Integrations → Send test alert**.
 5. **Remove the bootstrap token** after first sign-in: `npx wrangler secret delete BOOTSTRAP_ADMIN_TOKEN`.
 6. **Protect your Cloudflare and GitHub accounts** with passkeys or hardware security keys. Whoever controls Cloudflare controls the break-glass switches.
@@ -52,6 +52,20 @@ The dashboard's **Security** page shows these with live status.
    - **Encrypted file:** `openssl pkcs8 -topk8 -v2 aes-256-cbc -in private-key.pem -out private-key.enc.pem`, then set `AERON_KEY_PASSPHRASE` when publishing (Expo).
    - **CI:** only as encrypted secrets.
    - Run `aeron doctor` to confirm keys aren't committed.
+
+## What needs the Access login
+
+When Cloudflare Access is on:
+
+| Needs a person signed in to the dashboard | Works with a token (CLI, CI) |
+|---|---|
+| Approving or rejecting updates and patches | Publishing updates and patches |
+| Creating and revoking access tokens | Changing rollouts: share, halt, undo, roll back |
+| Adding, changing or retiring signing keys after the first | Creating an app and registering its **first** key (`aeron expo init`, `aeron flutter init`) |
+| GitHub trust rules | Reading everything a token's role allows |
+| Turning approvals off, deleting apps, Flutter signing changes | Registering store builds |
+
+The first key of a new app is allowed with a token because it can't put code on any phone: phones only trust the key inside a store build you ship. Everything that could weaken an existing app needs the login.
 
 ## Break-glass switches
 

@@ -57,9 +57,12 @@ adminFlutter.get("/apps/:appId", async (c) => {
 
 adminFlutter.post("/apps/:appId/settings", async (c) => {
   const app = await flutterApp(c, "admin");
-  await requireHuman(c, app.id);
   const body = await readJson<{ requireSigning?: boolean; publicKeyPem?: string | null }>(c);
   const current = await c.env.DB.prepare("SELECT require_signing, public_key_pem FROM flutter_settings WHERE app_id = ?").bind(app.id).first<{ require_signing: number; public_key_pem: string | null }>();
+  // Setting the first patch key (that's `aeron flutter init`) works with an admin token; anything that changes
+  // or weakens signing needs the human login.
+  const firstKey = !current?.public_key_pem && typeof body.publicKeyPem === "string" && body.publicKeyPem.trim() !== "" && body.requireSigning !== false;
+  if (!firstKey) await requireHuman(c, app.id);
   const hasActiveRelease = Boolean(
     await c.env.DB.prepare("SELECT 1 FROM sb_release_platforms rp JOIN sb_releases r ON r.id = rp.release_id WHERE r.app_id = ? AND rp.status = 'active' LIMIT 1").bind(app.id).first(),
   );

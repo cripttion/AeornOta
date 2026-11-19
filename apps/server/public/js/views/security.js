@@ -17,14 +17,14 @@ export async function renderSecurity(page) {
   const yours = [
     [appsNoApproval.length ? "bad" : "ok", "Four-eyes approval on every app", appsNoApproval.length ? `Off for: ${appsNoApproval.map((a) => a.id).join(", ")}. Turn it on in each app's Settings tab.` : "New code from CI or a token waits under Approvals until a different admin approves it.", appsNoApproval[0] ? `#/apps/${appsNoApproval[0].id}/settings` : null],
     [appsNoSigning.length ? "todo" : "ok", "Signing keys registered for every app", appsNoSigning.length ? `Missing for: ${appsNoSigning.map((a) => a.id).join(", ")}. Follow each app's Setup guide.` : "Every app has its public key registered.", appsNoSigning[0] ? `#/apps/${appsNoSigning[0].id}/setup` : null],
-    [d.accessEnforced ? "ok" : "todo", "Company login + MFA for approvals (Cloudflare Access)", d.accessEnforced ? "Approving, and changing keys, tokens and policies, needs a person signed in through Access." : "Recommended. Then a stolen admin token can't approve anything. Needs a custom domain; steps below.", d.accessEnforced ? null : "#access-steps"],
+    [d.accessEnforced ? "ok" : "optional", "Optional: company login + MFA for approvals (Cloudflare Access)", d.accessEnforced ? "Approving, and changing keys, tokens and policies, needs a person signed in through Access." : "Not switched on, which is fine. It adds a login on top of your admin token, useful once several people have admin access. Steps below if you ever want it.", d.accessEnforced ? null : "#access-steps"],
     [d.notificationsConfigured ? "ok" : "todo", "Instant alerts for publishes, approvals, rollbacks and key changes", d.notificationsConfigured ? "Alerts go to your Slack or Discord channel." : "Get a message within seconds if someone publishes or approves unexpectedly.", "#/integrations"],
     [d.bootstrapTokenActive ? "bad" : "ok", "One-time setup token removed", d.bootstrapTokenActive ? "Delete it: cd apps/server && npx wrangler secret delete BOOTSTRAP_ADMIN_TOKEN" : "The setup token no longer works.", d.bootstrapTokenActive ? "#/settings" : null],
     [s.tokens.noExpiry ? "todo" : "ok", "Every token expires", s.tokens.noExpiry ? `${s.tokens.noExpiry} token(s) never expire. Replace them with expiring ones and revoke the old ones.` : `${s.tokens.total} active tokens (${s.tokens.admins} admin). ${s.tokens.expiringSoon} expire within 14 days.`, "#/tokens"],
     [s.githubRules ? "ok" : "todo", "CI publishes through GitHub OIDC, not stored tokens", s.githubRules ? `${s.githubRules} trust rule(s). Workflows get one-hour tokens tied to a repository and branch.` : "Set it up under Integrations, so no long-lived Aeron token sits in GitHub.", "#/integrations"],
     [d.customDomain ? "ok" : "todo", "Your own domain for update URLs", d.customDomain ? "Update URLs use a domain you control." : "You're on *.workers.dev. A domain you control lets you move later without new store builds, and Cloudflare Access needs one.", "#/docs/setup/custom-domain"],
   ];
-  const all = [...always, ...yours];
+  const all = [...always, ...yours].filter((x) => x[0] !== "optional");
   const ok = all.filter((x) => x[0] === "ok").length;
   const bad = all.filter((x) => x[0] === "bad").length;
 
@@ -32,9 +32,9 @@ export async function renderSecurity(page) {
     h(
       "li",
       {},
-      h("span", { class: status === "ok" ? "mark-ok" : status === "bad" ? "mark-bad" : "mark-todo", "aria-label": status === "ok" ? "on" : status === "bad" ? "problem" : "to do" }, status === "ok" ? "✓" : status === "bad" ? "!" : "·"),
+      h("span", { class: status === "ok" ? "mark-ok" : status === "bad" ? "mark-bad" : "mark-todo", "aria-label": status === "ok" ? "on" : status === "bad" ? "problem" : status === "optional" ? "optional" : "to do" }, status === "ok" ? "✓" : status === "bad" ? "!" : status === "optional" ? "–" : "·"),
       h("div", {}, h("strong", {}, title), how ? h("div", { class: "how" }, how) : null),
-      status !== "ok" && href
+      status !== "ok" && status !== "optional" && href
         ? href.startsWith("#access")
           ? h("button", { type: "button", class: "btn ghost small go", onclick: () => document.getElementById("access-steps")?.scrollIntoView({ behavior: "smooth", block: "start" }) }, "Steps")
           : h("a", { class: "btn ghost small go", href }, "Fix")
@@ -70,16 +70,16 @@ export async function renderSecurity(page) {
     h(
       "section",
       { class: "card stack", id: "access-steps", style: { gap: "10px" } },
-      h("h2", {}, "Turn on Cloudflare Access (free for up to 50 people)"),
+      h("h2", {}, "Optional: turn on Cloudflare Access (free for up to 50 people)"),
       h(
         "ol",
         { class: "md", style: { fontSize: "14px" } },
         h("li", {}, "Put Aeron on your own domain (see Deploying → Custom domain in the docs)."),
-        h("li", {}, "Cloudflare dashboard → Zero Trust → Access → Applications → Add → Self-hosted. Domain: your Aeron domain, with two paths: ", h("code", {}, "/dashboard"), " and ", h("code", {}, "/api/admin/*"), ". Policy: allow your email(s), and require MFA. Everything else stays public, as phones and CI need."),
+        h("li", {}, "Cloudflare dashboard → Zero Trust → Access → Applications → Add → Self-hosted. Domain: your Aeron domain, path ", h("code", {}, "/dashboard"), ". Policy: allow your email(s). Sign-in with a one-time PIN works out of the box. Everything else stays public, as phones and CI need; Aeron checks your login itself for sensitive actions."),
         h("li", {}, "Copy the application's Audience (AUD) tag and your team domain into wrangler.jsonc, then deploy:"),
       ),
       codeBlock('# apps/server/wrangler.jsonc → "vars"\n"ACCESS_TEAM_DOMAIN": "yourteam.cloudflareaccess.com",\n"ACCESS_AUD": "<audience tag>"\n\ncd apps/server && npm run deploy'),
-      h("p", { class: "muted small" }, "Automation that calls the admin API through Access needs a service token (AERON_CF_ACCESS_CLIENT_ID / _SECRET). Service tokens can publish, but never approve."),
+      h("p", { class: "muted small" }, "The CLI and GitHub Actions keep working with tokens: publishing, rollouts and setting up new apps. Approvals, tokens, key changes, trust rules, the approval policy and deleting apps then need you signed in here."),
     ),
   );
 }

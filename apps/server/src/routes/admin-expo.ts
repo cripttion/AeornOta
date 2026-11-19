@@ -34,7 +34,10 @@ async function expoApp(c: Parameters<typeof assertRole>[0], role: "viewer" | "pu
 
 adminExpo.post("/apps/:appId/keys", async (c) => {
   const app = await expoApp(c, "admin");
-  await requireHuman(c, app.id);
+  // The app's first key can be registered with an admin token (that's `aeron expo init`): phones only trust the
+  // certificate inside the store build, so a key alone ships nothing. Every later key change needs the login.
+  const hadKeys = await c.env.DB.prepare("SELECT 1 FROM expo_keys WHERE app_id = ? LIMIT 1").bind(app.id).first();
+  if (hadKeys) await requireHuman(c, app.id);
   const body = await readJson<{ keyId?: string; publicKeyPem?: string; noUpdateDirective?: string; noUpdateSignature?: string }>(c);
   const keyId = requireMatch(body.keyId, /^[A-Za-z0-9._-]{1,64}$/, "keyId");
   const pem = body.publicKeyPem ?? "";

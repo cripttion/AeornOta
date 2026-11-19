@@ -153,7 +153,6 @@ function attention(data) {
   if (s && state.me.role === "admin") {
     if (s.bootstrapTokenActive) items.push(["bad", "The one-time setup token still works. Create your own admin token, then delete it.", "#/settings", "Fix"]);
     if (!s.notificationsConfigured) items.push(["", "Security alerts aren't set up. Get a Slack or Discord message for every publish and approval.", "#/integrations", "Set up"]);
-    if (!s.accessEnforced) items.push(["", "Approvals don't need SSO + MFA yet. Turn on Cloudflare Access so a stolen token can't approve.", "#/security", "How"]);
   }
   if (!items.length) return null;
   return h(

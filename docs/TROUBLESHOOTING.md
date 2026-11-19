@@ -7,7 +7,7 @@ Start with `aeron doctor` in the app folder. It checks the most common problems 
 | Symptom | Fix |
 |---|---|
 | "That token was not accepted" | It's expired, revoked or incomplete. Copy it again, or ask an admin for a new one under **Access tokens** |
-| "This action needs a person signed in through Cloudflare Access" | Approvals and security settings must be done in the dashboard in a browser once Access is on |
+| "This action needs a person signed in through Cloudflare Access" | With Access on, approvals, tokens, key changes, trust rules, the approval policy and deleting apps are done in the dashboard (`/dashboard`), where you're signed in. The CLI still publishes and sets up new apps with tokens |
 | The dashboard looks out of date after an upgrade | Reload the page (Ctrl+F5 on Windows, Cmd+Shift+R on macOS) |
 
 ## Approvals

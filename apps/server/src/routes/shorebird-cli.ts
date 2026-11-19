@@ -20,7 +20,6 @@ import {
 } from "../lib/shorebird";
 import { notify } from "../lib/notify";
 import { appPolicy, audit, createAppRow, invalidate } from "../lib/store";
-import { requireHuman } from "../lib/auth";
 
 /**
  * The subset of Shorebird's REST API (base /api/v1) that the stock `shorebird` CLI uses for
@@ -129,11 +128,6 @@ shorebirdCli.post("/apps", async (c) => {
     return c.json({ id: existing.id, display_name: existing.name }, 201);
   }
   sbRequire(p, "admin");
-  try {
-    await requireHuman(c);
-  } catch {
-    throw new SbError(403, "forbidden", `Create the app "${id}" in the Aeron console first (Apps → +), then re-run shorebird init.`);
-  }
   await createAppRow(c.env, id, name, "flutter");
   await audit(c.env, who(c), "app.create", id, { name, kind: "flutter", via: "shorebird init" });
   notify(c.env, c.executionCtx, `📱 ${p.name} added flutter app "${id}" (shorebird init)`);

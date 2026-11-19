@@ -76,7 +76,7 @@ Under `/api/admin`. Errors are `{"error":{"code","message"}}`.
 | GET | `/github/workflow?app=` | viewer |
 | POST | `/notifications/test` | admin |
 
-Sensitive admin actions also require a Cloudflare Access login when `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` are set: approvals, apps, tokens, keys, trust rules and policies.
+Sensitive admin actions also require a Cloudflare Access login when `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` are set: approvals, tokens, key changes after an app's first key, trust rules, the approval policy, Flutter signing changes and deleting apps. The login is read from the `Cf-Access-Jwt-Assertion` header or the `CF_Authorization` cookie and verified against your team's keys. Creating an app and registering its first key work with an admin token.
 
 ## Publishing an Expo update by hand
 

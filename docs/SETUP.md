@@ -174,10 +174,10 @@ For the `--token`, use a **Publisher** token (create one under **Access tokens**
 
 ## Step 9. Lock it down
 
-Open **Security** in the dashboard. It lists every protection with a **Fix** button. The two worth doing now:
+Open **Security** in the dashboard. It lists every protection with a **Fix** button. Two optional extras:
 
 - **Security alerts:** get a Slack or Discord message for every publish, approval and key change. See **Integrations → Security alerts**.
-- **Company login + MFA for approvals** (Cloudflare Access): needs your own domain. See [Security](SECURITY.md#setup-checklist).
+- **Company login + MFA for approvals** (Cloudflare Access): adds a login on top of your admin token. Useful once several people have admin access; needs your own domain. See [Security](SECURITY.md#setup-checklist).
 
 **You're done.** Next: [add your first app and ship an update](WALKTHROUGH.md).
 

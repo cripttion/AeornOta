@@ -72,10 +72,23 @@ export function accessEnforced(env: Env) {
  * is configured — a human signed in through Access (SSO + MFA). A stolen token alone is not enough,
  * and CI service tokens can never approve their own work.
  */
+/**
+ * The Access login travels as the cf-access-jwt-assertion header on paths Access protects (/dashboard), and as
+ * the CF_Authorization cookie on the rest of the domain (the dashboard's /api/admin calls). Both are the same
+ * signed JWT and are verified the same way. The admin API also needs a bearer token, so the cookie alone can't
+ * be used by another site (no CSRF).
+ */
+function accessJwt(c: Context<AppEnv>): string | null {
+  const header = c.req.header("cf-access-jwt-assertion");
+  if (header) return header;
+  const m = /(?:^|;\s*)CF_Authorization=([^;]+)/.exec(c.req.header("cookie") ?? "");
+  return m ? decodeURIComponent(m[1]!) : null;
+}
+
 export async function requireHuman(c: Context<AppEnv>, appId?: string) {
   assertRole(c, "admin", appId);
   if (!accessEnforced(c.env)) return;
-  const jwt = c.req.header("cf-access-jwt-assertion");
+  const jwt = accessJwt(c);
   if (!jwt) throw forbidden("This action needs a person signed in through Cloudflare Access. Use the console in a browser.");
   const team = c.env.ACCESS_TEAM_DOMAIN!.replace(/^https?:\/\//, "").replace(/\/$/, "");
   try {
