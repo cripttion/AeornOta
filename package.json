@@ -12,7 +12,7 @@
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "npm run dev -w @aeron/server",
-    "test": "npm test -w @aeron/server && npm test -w @aeron/cli",
+    "test": "npm test -w @aeron/server && npm test -w @aeron/cli && node --test scripts/*.test.mjs",
     "typecheck": "npm run typecheck -w @aeron/server && npm run typecheck -w @aeron/cli",
     "build:cli": "npm run build -w @aeron/cli",
     "build:cli-bundle": "node scripts/build-cli.mjs",

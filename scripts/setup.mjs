@@ -13,6 +13,7 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "n
 import { dirname, join } from "node:path";
 import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
+import * as cfg from "./setup-config.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SERVER = join(ROOT, "apps", "server");
@@ -75,24 +76,14 @@ const lastLines = (s, k = 15) => s.trim().split(/\r?\n/).slice(-k).map((l) => di
 
 const readConfig = () => readFileSync(CONFIG, "utf8");
 const writeConfig = (s) => writeFileSync(CONFIG, s);
-const configValue = (key) => new RegExp(`"${key}":\\s*"([^"]*)"`).exec(readConfig())?.[1] ?? "";
+const configValue = (key) => cfg.getValue(readConfig(), key);
 function setConfigValue(key, value) {
   const s = readConfig();
-  const next = s.replace(new RegExp(`("${key}":\\s*)"[^"]*"`), `$1"${value}"`);
+  const next = cfg.setValue(s, key, value);
   if (next !== s) writeConfig(next);
   return next !== s;
 }
-function setCustomDomain(domain) {
-  let s = readConfig();
-  // A root domain (example.com) also gets www.example.com, which redirects to it.
-  const hosts = domain.split(".").length === 2 ? [domain, `www.${domain}`] : [domain];
-  const routes = `"routes": [${hosts.map((h) => `{ "pattern": "${h}", "custom_domain": true }`).join(", ")}],`;
-  if (/"routes":\s*\[[^\]]*\],?/.test(s)) s = s.replace(/"routes":\s*\[[^\]]*\],?/, routes);
-  else s = s.replace(/("compatibility_date":\s*"[^"]*",)/, `$1\n  ${routes}`);
-  // With routes, wrangler would switch the *.workers.dev address off; keep both working.
-  if (!/"workers_dev":/.test(s)) s = s.replace(routes, `${routes}\n  "workers_dev": true,\n  "preview_urls": false,`);
-  writeConfig(s);
-}
+const setCustomDomain = (domain) => writeConfig(cfg.setCustomDomain(readConfig(), domain));
 
 // ------------------------------------------------------------------ args
 
@@ -184,7 +175,16 @@ else {
   if (!db) fail("The database was created but can't be found. Run setup again in a minute.");
   ok("Created the database \"aeron\"");
 }
+const previousDb = configValue("database_id");
 if (setConfigValue("database_id", db.uuid)) info("Saved its id in apps/server/wrangler.jsonc");
+const otherDomains = cfg.customDomains(readConfig());
+if (previousDb && previousDb !== db.uuid && otherDomains.length && !domain) {
+  // This copy of Aeron was set up on another Cloudflare account (for example, cloned from GitHub). Its domains
+  // belong to that account; Cloudflare would refuse them here. Use the free workers.dev address instead.
+  writeConfig(cfg.removeCustomDomains(readConfig()));
+  info(`This copy was set up for another Cloudflare account, so its domain (${otherDomains.join(", ")}) was left out.`);
+  info("Your server gets its own address. To use your own domain: npm run setup -- --domain your-domain.com");
+}
 
 // 5. File storage (R2)
 step("File storage (Cloudflare R2)");
@@ -235,7 +235,7 @@ if (dep.code !== 0) {
   fail("Deploying failed.", ...lastLines(dep.out));
 }
 const workersUrl = /https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev/i.exec(dep.out)?.[0];
-const publicUrl = domain ? `https://${domain}` : workersUrl || configValue("PUBLIC_BASE_URL");
+const publicUrl = cfg.choosePublicUrl({ domain, text: readConfig(), workersUrl });
 if (setConfigValue("PUBLIC_BASE_URL", publicUrl)) {
   info(`Saving your server address (${publicUrl}) and deploying once more…`);
   dep = await wrangler(["deploy"]);

@@ -4,17 +4,16 @@ From nothing to an approved update on real phones, in about 20 minutes. Each ste
 
 Before you start, you need an Aeron server ([set one up](SETUP.md) if your team doesn't have one) and the tools on your computer ([Install](INSTALL.md)).
 
-## 0. Get two tokens (dashboard)
+## 0. Sign in (dashboard and terminal)
 
-1. Sign in to the dashboard with your admin token.
-2. Open **Access tokens** and create a **Publisher** token, limited to your app, expiring in 90 days. For Flutter apps, tick **For Flutter**.
-3. In the terminal, sign in with the publisher token:
+1. Open `https://YOUR-AERON-SERVER/dashboard` and sign in with your **admin** token.
+2. In the terminal, sign in with the same admin token. You need it only for the one-time project setup in step 2 (registering the app's signing key); right after, you switch to a publisher token.
 
 ```bash
-aeron login --server https://YOUR-AERON-SERVER --token <publisher token>
+aeron login --server https://YOUR-AERON-SERVER --token <admin token>
 ```
 
-> **Note:** Why two tokens? With four-eyes approval, the token that publishes can't approve. You publish with the publisher token and approve in the dashboard with your admin token. A leaked laptop or CI token then can't ship anything on its own.
+> **Note:** Why two tokens? With four-eyes approval, the token that publishes can't approve. You publish from the terminal with a **publisher** token and approve in the dashboard with your **admin** token. A leaked laptop or CI token then can't ship anything on its own.
 
 ## Expo or React Native app
 
@@ -41,6 +40,16 @@ aeron doctor                           # double-checks everything
 > **Important:** Back up `keys/private-key.pem` in your password manager now. Without it you can't publish updates for builds that trust it.
 
 **Check:** the app's checklist shows *Project connected* as done.
+
+### 2b. Switch the terminal to a publisher token (dashboard, then terminal)
+
+In the dashboard, open **Access tokens** and create a **Publisher** token limited to this app, expiring in 90 days. Copy it, then:
+
+```bash
+aeron login --server https://YOUR-AERON-SERVER --token <publisher token>
+```
+
+From now on the terminal publishes with this token, and your admin token stays in the dashboard for approvals.
 
 ### 3. Ship one store build (store)
 
@@ -89,6 +98,14 @@ aeron doctor
 This creates and registers your patch keys, writes `shorebird.yaml` (with Aeron's address as `base_url`), adds it to `pubspec.yaml` assets, adds Android's INTERNET permission, and git-ignores the private key.
 
 > **Important:** Back up `keys/patch-private.pem`. Without it, releases built with its public key can never be patched again.
+
+### 2b. Switch the terminal to a publisher token (dashboard, then terminal)
+
+In the dashboard, open **Access tokens** and create a **Publisher** token limited to this app, expiring in 90 days, and tick **For Flutter** (so the shorebird CLI accepts it). Copy it, then:
+
+```bash
+aeron login --server https://YOUR-AERON-SERVER --token <publisher token>
+```
 
 ### 3. Build the store release (terminal, then store)
 
