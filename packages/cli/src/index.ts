@@ -33,12 +33,12 @@ Review and security
   aeron ci github --app calmi [--write]        GitHub Actions workflow (no stored tokens)
   aeron github trust add --app calmi --repo owner/name --branch main
   aeron tokens create --name ci --role publisher --apps calmi [--shorebird] [--expires-days 90]
-  aeron tokens list | revoke <id>      aeron apps list | create <id> --kind expo|flutter
+  aeron tokens list | revoke <id>      aeron apps list | create <id> --kind expo|flutter | delete <id>
   aeron audit [--app calmi]            aeron whoami
 
 Environment: AERON_SERVER, AERON_TOKEN, AERON_EXPO_PRIVATE_KEY(_PATH), AERON_FLUTTER_PRIVATE_KEY(_PATH),
 AERON_KEY_PASSPHRASE, SHOREBIRD_BIN, AERON_CF_ACCESS_CLIENT_ID / _SECRET (Cloudflare Access service token)
-Docs: <your server>/#/docs
+Docs: <your server>/docs
 `;
 
 async function main(argv: string[]) {
@@ -111,7 +111,19 @@ async function appsCommand(api: Api, args: Args) {
     log(`Created ${r.app.kind} app ${r.app.id} (approvals required by default)`);
     return;
   }
-  throw new CliError("Usage: aeron apps list | aeron apps create <id> --kind expo|flutter");
+  if (sub === "delete") {
+    const id = args._[2] ?? requireFlag(args, "id");
+    const p = await api.request("DELETE", `/api/admin/apps/${id}`, { dryRun: true });
+    log(`Deleting ${p.kind} app "${id}" permanently removes ${p.updates} update(s), ${p.releases} release(s), ${p.patches} patch(es), ${p.runtimes} store build(s), ${p.keys} signing key(s) and ${p.files} stored file(s).`);
+    if (p.tokensRevoked || p.tokensNarrowed) log(`It revokes ${p.tokensRevoked} token(s) limited to this app, and removes it from ${p.tokensNarrowed} other token(s).`);
+    log("Phones with this app keep the code they already have, but get no more updates from Aeron. This can't be undone.");
+    if (args.flags["dry-run"]) return;
+    if (flag(args, "confirm") !== id) throw new CliError(`Nothing was deleted. To confirm, run: aeron apps delete ${id} --confirm ${id}`);
+    await api.request("DELETE", `/api/admin/apps/${id}`, { confirm: id });
+    log(`Deleted ${id}.`);
+    return;
+  }
+  throw new CliError("Usage: aeron apps list | aeron apps create <id> --kind expo|flutter | aeron apps delete <id> [--dry-run] [--confirm <id>]");
 }
 
 async function tokensCommand(api: Api, args: Args) {

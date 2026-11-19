@@ -356,4 +356,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "?" && !e.target.closest("input, textarea, select") && state.me) openHelp(state.helpKey);
 });
 
+// /docs opens the documentation directly.
+if (location.pathname.replace(/\/$/, "") === "/docs" && !location.hash.startsWith("#/")) location.replace("#/docs/getting-started");
 boot();

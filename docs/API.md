@@ -5,6 +5,14 @@ All endpoints are served by the one Worker.
 - Device endpoints are public, because phones hold no secret.
 - Admin endpoints need `Authorization: Bearer <token>`.
 
+## Pages
+
+| Path | What it is |
+|---|---|
+| `/` | The project website |
+| `/dashboard` | The dashboard (sign in with a token). Old `/#/…` links redirect here |
+| `/docs` | The documentation, readable without signing in |
+
 ## Device endpoints (public)
 
 | Method | Path | Used by |
@@ -41,6 +49,7 @@ Under `/api/admin`. Errors are `{"error":{"code","message"}}`.
 |---|---|---|
 | GET | `/me`, `/config`, `/settings`, `/overview?days=14` | viewer |
 | GET, POST | `/apps` | viewer / admin |
+| DELETE | `/apps/:id` with `{"dryRun": true}` (preview) or `{"confirm": "<id>"}` (delete permanently). Removes the app's updates, releases, patches, keys, stats, trust rules and the stored files no other app uses; revokes tokens limited to it | admin |
 | GET | `/apps/:id`, `/apps/:id/stats?days=14` | viewer |
 | GET | `/audit?app=&limit=` | viewer (with `app`) / admin |
 | POST, GET, DELETE | `/tokens`, `/tokens/:id` | admin |

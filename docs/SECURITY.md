@@ -38,13 +38,11 @@ The dashboard's **Security** page shows these with live status.
 2. **Use separate tokens.** Admin tokens are for the dashboard only. Publish with a publisher token limited to the app, or with GitHub OIDC.
 3. **Turn on Cloudflare Access** (free for up to 50 users). It needs a custom domain:
    1. Cloudflare dashboard → **Zero Trust → Access → Applications → Add → Self-hosted**.
-      - Domain: your Aeron domain, paths `/` and `/api/admin/*`.
+      - Domain: your Aeron domain, with two paths: `/dashboard` and `/api/admin/*`.
       - Policy: allow your emails, require MFA through your identity provider or one-time PIN.
-   2. Add a second self-hosted application with policy **Bypass** for:
-      - `/expo/*`, `/files/*`, `/sb/*`, `/api/v1/*`, `/api/auth/*`, `/cli/*` and `/healthz`
-      - Phones, the shorebird CLI and GitHub OIDC must reach these without a login.
-   3. Put the first application's **AUD** tag and your team domain in `apps/server/wrangler.jsonc` → `vars`: `"ACCESS_TEAM_DOMAIN": "yourteam.cloudflareaccess.com"` and `"ACCESS_AUD": "<aud>"`. Then deploy.
-   4. CLI calls to `/api/admin` from automation need an Access **service token**: set `AERON_CF_ACCESS_CLIENT_ID` / `AERON_CF_ACCESS_CLIENT_SECRET`. Service tokens can publish, but they can never approve.
+      - Everything else stays public, as it must: the website and docs, and the paths phones, the shorebird CLI and GitHub Actions use.
+   2. Put the application's **AUD** tag and your team domain in `apps/server/wrangler.jsonc` → `vars`: `"ACCESS_TEAM_DOMAIN": "yourteam.cloudflareaccess.com"` and `"ACCESS_AUD": "<aud>"`. Then deploy (`npm run setup`).
+   3. CLI calls to `/api/admin` from automation need an Access **service token**: set `AERON_CF_ACCESS_CLIENT_ID` / `AERON_CF_ACCESS_CLIENT_SECRET`. Service tokens can publish, but they can never approve.
 4. **Set up alerts:** `npx wrangler secret put NOTIFY_WEBHOOK_URL` with a Slack or Discord incoming webhook. Then **Integrations → Send test alert**.
 5. **Remove the bootstrap token** after first sign-in: `npx wrangler secret delete BOOTSTRAP_ADMIN_TOKEN`.
 6. **Protect your Cloudflare and GitHub accounts** with passkeys or hardware security keys. Whoever controls Cloudflare controls the break-glass switches.

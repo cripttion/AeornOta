@@ -277,7 +277,7 @@ adminExpo.post("/apps/:appId/updates", async (c) => {
   const label = `${app.id} ${channel}/${platform} (runtime ${runtime})${body.message ? `: "${String(body.message).slice(0, 80)}"` : ""}${gitSha ? ` @ ${gitSha.slice(0, 7)}` : ""}`;
   if (status === "pending") {
     notify(c.env, c.executionCtx, `🕓 Update waiting for approval: ${label}. Submitted by ${principal.name}.`);
-    return c.json({ id, channel, platform, runtimeVersion: runtime, status, rolloutPercent: pct, approvalUrl: `${c.env.PUBLIC_BASE_URL.replace(/\/$/, "")}/#/approvals` }, 201);
+    return c.json({ id, channel, platform, runtimeVersion: runtime, status, rolloutPercent: pct, approvalUrl: `${c.env.PUBLIC_BASE_URL.replace(/\/$/, "")}/dashboard#/approvals` }, 201);
   }
   const live = await goLive(c.env, { id, appId: app.id, channel, platform, runtime, createdAt }, percentBp, who);
   notify(c.env, c.executionCtx, `🚀 Update live at ${pct}% (approvals are off for this app): ${label}. Published by ${principal.name}.`);

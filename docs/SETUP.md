@@ -211,7 +211,7 @@ Your server's address is built into every app build (as the update URL). The fre
 npm run setup -- --domain ota.yourcompany.com
 ```
 
-Cloudflare creates the address and its HTTPS certificate automatically. If you already shipped app builds with the `workers.dev` address, it keeps working too: those builds keep using it until users update from the store.
+Cloudflare creates the address and its HTTPS certificate automatically. For a domain that just became **Active**, the certificate takes about 15 minutes (occasionally a few hours); until then browsers say the site can't provide a secure connection. The `workers.dev` address keeps working the whole time, and afterwards too, so app builds that use it keep getting updates.
 
 ## Updating Aeron later
 
@@ -263,6 +263,7 @@ Never put these in a file you commit.
 | "doesn't have a workers.dev address yet" | Do [Step 2](#step-2-switch-on-workers-and-r2-one-time), the Workers part |
 | "Cloudflare couldn't attach" your domain | The domain must be **Active** in this Cloudflare account. See [Custom domain](#custom-domain) |
 | "It isn't answering yet" | A brand-new address can take a few minutes. Open it in your browser a little later |
+| "Can't provide a secure connection" on your new domain | Cloudflare is still issuing its HTTPS certificate. Wait 15 minutes and try again |
 | The dashboard says "That token was not accepted" | Copy the whole token, with no spaces. If you already turned off the setup token, use your admin token |
 
 ## What it costs

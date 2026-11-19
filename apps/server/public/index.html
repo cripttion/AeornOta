@@ -4,32 +4,269 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <meta name="robots" content="noindex">
-  <title>Aeron Console</title>
+  <title>Aeron · Self-hosted OTA updates for Expo, React Native and Flutter</title>
+  <meta name="description" content="Ship fixes and UI changes to Expo, React Native and Flutter apps in minutes, without store review. Signed end to end, approved by a second person, running on your own Cloudflare account.">
+  <meta property="og:title" content="Aeron: self-hosted OTA updates">
+  <meta property="og:description" content="Signed over-the-air updates for Expo, React Native and Flutter apps, on your own Cloudflare account.">
+  <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%230b6a85' stroke-width='4'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%230b6a85'/%3E%3C/svg%3E">
   <script src="/js/theme.js"></script>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/site.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="topbar">
-    <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar" hidden></button>
-    <a class="brand" href="#/overview"><span class="mark" aria-hidden="true"></span>Aeron</a>
-    <span class="server" id="server" title="The Aeron server this dashboard controls"></span>
-    <div class="top-right">
-      <button type="button" class="icon-btn" id="help-btn" aria-label="Help for this page" hidden></button>
-      <button type="button" class="icon-btn" id="theme-btn" aria-label="Theme"></button>
-      <span class="who" id="who"></span>
-      <button type="button" class="icon-btn" id="logout" hidden></button>
+
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>Aeron</a>
+      <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <nav id="nav-links" class="nav-links" aria-label="Main">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#security">Security</a>
+        <a href="/docs">Docs</a>
+        <a href="https://github.com/cripttion/AeornOta" class="gh" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>
+          GitHub
+        </a>
+        <a href="/dashboard" class="btn small">Dashboard</a>
+      </nav>
     </div>
   </header>
 
-  <div class="layout">
-    <nav class="sidebar" id="sidebar" aria-label="Main" hidden></nav>
-    <main id="main" tabindex="-1"></main>
-  </div>
+  <main id="main">
+    <section class="hero">
+      <div class="wrap hero-in">
+        <div class="hero-copy">
+          <p class="pill-line"><span class="pill">Free</span><span class="pill">Self-hosted</span><span class="pill">Source on GitHub</span></p>
+          <h1>Over-the-air updates for your mobile apps, on your own Cloudflare.</h1>
+          <p class="lead">Ship fixes and UI changes to <strong>Expo</strong>, <strong>React Native</strong> and <strong>Flutter</strong> apps in minutes, without waiting for store review. Signed on your machine, approved by a second person, rolled out safely.</p>
+          <div class="cta">
+            <a class="btn" href="/docs#/docs/setup">Get started</a>
+            <a class="btn ghost" href="https://github.com/cripttion/AeornOta" rel="noopener">View on GitHub</a>
+          </div>
+          <p class="works">Works with the stock <code>expo-updates</code> library and Shorebird's Flutter engine. No proprietary SDK.</p>
+        </div>
+        <div class="terminal" role="img" aria-label="Terminal: clone Aeron and run npm run setup">
+          <div class="term-bar"><i></i><i></i><i></i><span>Terminal</span></div>
+<pre><span class="p">$</span> git clone https://github.com/cripttion/AeornOta.git aeron
+<span class="p">$</span> cd aeron &amp;&amp; npm run setup
 
-  <div id="toasts" class="toasts" aria-live="polite"></div>
-  <script type="module" src="/js/main.js"></script>
+<span class="ok">✓</span> Signed in to Cloudflare
+<span class="ok">✓</span> Database and file storage ready
+<span class="ok">✓</span> Online at <span class="hl">https://aeronota.online</span>
+
+<span class="p">$</span> aeron expo publish --app calmi --message "Fix paywall"
+<span class="ok">✓</span> Signed and uploaded <span class="dim">(270 B patch)</span>
+  Waiting for approval in the dashboard</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Highlights">
+      <div class="wrap stats-in">
+        <div><b>270 B</b><span>download for a 6.3 MB bundle update, as a patch</span></div>
+        <div><b>~10 KB</b><span>typical Flutter patch</span></div>
+        <div><b>$0</b><span>to run for up to ~30,000 daily users</span></div>
+        <div><b>1</b><span>command to set up your server</span></div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Features</p>
+          <h2>Everything you need to ship safely, nothing you don't</h2>
+          <p class="sub">A small server on your Cloudflare account, a dashboard, and a command-line tool for macOS and Windows.</p>
+        </div>
+        <div class="features">
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            <h3>Signed end to end</h3>
+            <p>Updates are signed with a key that never leaves your computer or CI. Phones reject anything else, even from a compromised server.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 14.5c2.7-.6 6 1.2 6 4.5"/></svg>
+            <h3>Four-eyes approvals</h3>
+            <p>New code waits for a second person. A leaked CI secret or laptop token can't ship anything on its own.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/><path d="M15 8h3v3"/></svg>
+            <h3>Gradual rollouts</h3>
+            <p>Start with 10% of phones, watch the error rate, then go to 100%. Every phone keeps its place as you go higher.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8H4V3"/><path d="M4.5 8A8 8 0 1 1 12 20"/></svg>
+            <h3>Instant undo</h3>
+            <p>Halt a rollout, send phones back to the store build's code, or roll back a Flutter patch, in one click.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5V4"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+            <h3>Tiny downloads</h3>
+            <p>Phones download only the bytes that changed. Unchanged images and fonts are never downloaded twice.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+            <h3>Fast everywhere</h3>
+            <p>Update checks are answered by the Cloudflare location nearest each phone, from an edge cache.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v12"/><path d="M18 9a9 9 0 0 1-9 9"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/></svg>
+            <h3>GitHub Actions, no stored tokens</h3>
+            <p>Workflows prove which repository and branch they run from, and get a one-hour token. The commit shows on the approval.</p>
+          </article>
+          <article class="feature">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4z"/><path d="M13 4h7v4h-7z"/><path d="M13 10h7v10h-7z"/><path d="M4 13h7v7H4z"/></svg>
+            <h3>A dashboard anyone can use</h3>
+            <p>Plain-language pages, help on every screen, an audit log, and guides with macOS and Windows commands.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">How it works</p>
+          <h2>From your code to users' phones in four steps</h2>
+          <p class="sub">Aeron replaces only the update server. Your apps keep using the official libraries.</p>
+        </div>
+        <ol class="steps">
+          <li><span class="n">1</span><h3>Publish</h3><p>Run one command, or let GitHub Actions do it. The update is built and <strong>signed with your private key</strong>.</p></li>
+          <li><span class="n">2</span><h3>Approve</h3><p>A second person checks the message, commit and size in the dashboard, and approves it.</p></li>
+          <li><span class="n">3</span><h3>Roll out</h3><p>Phones in the chosen share download it in the background, <strong>verify the signature</strong>, and switch on the next launch.</p></li>
+          <li><span class="n">4</span><h3>Watch</h3><p>See downloads and the error rate per update. Raise the share, or halt and undo in one click.</p></li>
+        </ol>
+
+        <div class="code-card" id="code">
+          <div class="tabs" role="tablist" aria-label="Framework">
+            <button type="button" role="tab" aria-selected="true" data-tab="expo">Expo / React Native</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="flutter">Flutter</button>
+          </div>
+<pre data-panel="expo"><span class="c"># once, in your app folder: keys, app.json and native settings</span>
+aeron expo init --app calmi --write
+
+<span class="c"># every change: build, sign, upload only what changed</span>
+aeron expo publish --app calmi --key keys/private-key.pem --message "Fix paywall copy"</pre>
+<pre data-panel="flutter" hidden><span class="c"># once, in your Flutter project: keys, shorebird.yaml, permissions</span>
+aeron flutter init --app fitloop --write
+aeron flutter release --app fitloop          <span class="c"># the store build</span>
+
+<span class="c"># every change: a small signed patch of your Dart code</span>
+aeron flutter patch --app fitloop --message "Fix results screen"</pre>
+        </div>
+
+        <div class="what">
+          <div>
+            <h3>Ships over the air</h3>
+            <ul><li>Screens, text, layouts and styles</li><li>Business logic and bug fixes</li><li>Hiding a paywall, adding a modal</li><li>Images inside an Expo update</li></ul>
+          </div>
+          <div>
+            <h3>Still needs a store release</h3>
+            <ul><li>New native libraries or plugins</li><li>Permissions and the app icon</li><li>SDK, React Native or Flutter upgrades</li><li>Flutter files under <code>assets/</code></li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="section dark">
+      <div class="wrap security-in">
+        <div class="section-head left">
+          <p class="eyebrow">Security</p>
+          <h2>Built so nobody else can push code to your users</h2>
+          <p class="sub">Independent layers. An attacker has to beat all of them, not just one.</p>
+          <ul class="layers">
+            <li><b>Signed on your side.</b> The server never holds a private key.</li>
+            <li><b>Second-person approval</b> for every new update and patch.</li>
+            <li><b>Unsigned builds get nothing.</b> Locked keys can't be swapped.</li>
+            <li><b>No stored CI tokens</b>, thanks to GitHub OIDC.</li>
+            <li><b>Optional SSO + MFA</b> for approvals with Cloudflare Access.</li>
+            <li><b>Audit log</b> of every change, with optional Slack or Discord alerts.</li>
+          </ul>
+        </div>
+        <div class="threats">
+          <h3>What would an attacker need?</h3>
+          <dl>
+            <div><dt>Control of your server, database or storage</dt><dd class="no">Not enough. They can't sign updates.</dd></div>
+            <div><dt>A stolen publishing token or CI secret</dt><dd class="no">Not enough. The upload waits for approval.</dd></div>
+            <div><dt>Your private key alone</dt><dd class="no">Not enough. They still need a token and an approval.</dd></div>
+            <div><dt>A phone on hostile Wi-Fi</dt><dd class="no">Not enough. TLS plus end-to-end signatures.</dd></div>
+          </dl>
+          <a class="more" href="/docs#/docs/security">Read the security model →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Cost</p>
+          <h2>Costs what Cloudflare costs</h2>
+          <p class="sub">No per-user fees and no vendor in the middle. You pay Cloudflare directly, if at all.</p>
+        </div>
+        <div class="prices">
+          <div class="price"><h3>Workers</h3><p class="amt">Free</p><p>up to 100,000 requests a day, then $5 a month for 10 million</p></div>
+          <div class="price"><h3>D1 database</h3><p class="amt">Free</p><p>up to 5 million reads a day; included with Workers Paid</p></div>
+          <div class="price"><h3>R2 storage</h3><p class="amt">Free</p><p>up to 10 GB, with no download fees at any size</p></div>
+        </div>
+        <p class="note">One update check per app launch: the free plan covers roughly 30,000 daily active users across all your apps.</p>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="wrap faq-wrap">
+        <div class="section-head left">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions people ask</h2>
+          <p class="sub">More in the <a href="/docs#/docs/faq">full FAQ</a>.</p>
+        </div>
+        <div class="faq">
+          <details><summary>Do I need to pay Expo or Shorebird?</summary><p>No. Your apps use the free <code>expo-updates</code> library and Shorebird's open-source Flutter engine. Aeron replaces their servers, so there's no update plan to buy and no Shorebird account needed.</p></details>
+          <details><summary>Do the App Store and Play Store allow this?</summary><p>Both allow apps to download updated JavaScript or interpreted code, as long as an update doesn't change the app's main purpose or get around store policies. Use it for fixes and UI changes, and ship big new features through the stores.</p></details>
+          <details><summary>What if an update breaks something?</summary><p>Start every rollout small. If the error rate jumps, Halt stops it spreading, and Undo or Roll back takes it back from phones that have it. The client libraries also refuse to keep running code that fails to start.</p></details>
+          <details><summary>What if the server is down?</summary><p>Apps keep working with the code they already have. They simply don't get new updates until the server is back.</p></details>
+          <details><summary>Mac or Windows?</summary><p>Both. Every <code>aeron</code> command is the same, and the docs show install steps for each. iOS builds still need a Mac, as always.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section cta-band">
+      <div class="wrap cta-in">
+        <h2>Set up your own update server in about 30 minutes</h2>
+        <p>Step-by-step, starting from a brand-new Cloudflare account. No server experience needed.</p>
+        <div class="cta">
+          <a class="btn" href="/docs#/docs/setup">Read the setup guide</a>
+          <a class="btn ghost" href="https://github.com/cripttion/AeornOta" rel="noopener">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-in">
+      <div>
+        <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>Aeron</a>
+        <p>Free, self-hosted over-the-air updates for Expo, React Native and Flutter apps. Runs on your own Cloudflare account.</p>
+      </div>
+      <nav aria-label="Footer">
+        <h3>Learn</h3>
+        <a href="/docs#/docs/getting-started">Getting started</a>
+        <a href="/docs#/docs/how-it-works">How it works</a>
+        <a href="/docs#/docs/setup">Set up a server</a>
+        <a href="/docs#/docs/faq">FAQ</a>
+      </nav>
+      <nav aria-label="Project">
+        <h3>Project</h3>
+        <a href="https://github.com/cripttion/AeornOta" rel="noopener">GitHub</a>
+        <a href="/docs#/docs/security">Security</a>
+        <a href="/docs#/docs/cli">CLI reference</a>
+        <a href="/dashboard">Dashboard</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="/js/site.js"></script>
 </body>
 </html>

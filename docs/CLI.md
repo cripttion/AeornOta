@@ -72,6 +72,7 @@ Install: see [Install](INSTALL.md). Commands and flags are identical on macOS, L
 | Command | What it does |
 |---|---|
 | `aeron apps list` / `aeron apps create <id> --kind expo\|flutter [--name N]` | Apps |
+| `aeron apps delete <id> [--dry-run] [--confirm <id>]` | Shows what deleting the app removes; with `--confirm <id>`, deletes it permanently (admin) |
 | `aeron tokens create --name N [--role publisher] [--apps a,b] [--shorebird] [--expires-days 90] [--no-expiry]` | Create a token; `--shorebird` makes it start with `sb_api_` |
 | `aeron tokens list` / `aeron tokens revoke <id>` | List or revoke |
 | `aeron github trust add --app A --repo owner/name [--branch main] [--environment E]` | Let a GitHub repository publish to an app through OIDC |

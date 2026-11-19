@@ -6,7 +6,7 @@ The dashboard is where you **check, approve, control and watch** updates. Publis
 
 ## Signing in
 
-Paste your access token and click **Sign in**. The browser keeps it on this device only; untick **Keep me signed in** on shared computers.
+Open `/dashboard` on your Aeron address (for example `https://aeronota.online/dashboard`), paste your access token and click **Sign in**. The address itself (`/`) is the project website, and `/docs` opens these guides. The browser keeps it on this device only; untick **Keep me signed in** on shared computers.
 
 - **First time:** use the one-time setup token printed by `npm run setup` (see [Set up your Aeron server](SETUP.md)), create your own admin token under **Access tokens**, then delete the setup token (the dashboard reminds you).
 - **With Cloudflare Access:** you sign in with your company account first, then paste your token.
@@ -63,7 +63,7 @@ The header shows the app, **Ship a change** (the exact command to publish, for y
 | **Store builds** | The store builds this app may update. Register each one when it ships |
 | **Signing keys** | The public keys phones trust. Retire old keys after rotating |
 | **Activity** | Downloads and error rate per day, numbers per update, and recent changes |
-| **Settings** | Four-eyes approval on or off |
+| **Settings** | Four-eyes approval on or off. Admins also see **Delete this app**, which lists exactly what will be removed and asks you to type the app's id |
 | **Setup guide** | The checklist, plus copy-paste steps for this app, including fixes for plain React Native projects |
 
 ## Flutter app pages

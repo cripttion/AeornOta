@@ -87,6 +87,8 @@ function setCustomDomain(domain) {
   const routes = `"routes": [{ "pattern": "${domain}", "custom_domain": true }],`;
   if (/"routes":\s*\[[^\]]*\],?/.test(s)) s = s.replace(/"routes":\s*\[[^\]]*\],?/, routes);
   else s = s.replace(/("compatibility_date":\s*"[^"]*",)/, `$1\n  ${routes}`);
+  // With routes, wrangler would switch the *.workers.dev address off; keep both working.
+  if (!/"workers_dev":/.test(s)) s = s.replace(routes, `${routes}\n  "workers_dev": true,\n  "preview_urls": false,`);
   writeConfig(s);
 }
 
@@ -284,11 +286,12 @@ else warn("It isn't answering yet. A brand-new address can take a few minutes; o
 // ------------------------------------------------------------------ summary
 
 console.log(`\n${green(bold("Your Aeron server is ready."))}\n`);
-console.log(`  Dashboard:    ${bold(publicUrl)}`);
+console.log(`  Website:      ${publicUrl}`);
+console.log(`  Dashboard:    ${bold(`${publicUrl}/dashboard`)}`);
 if (setupToken) console.log(`  Setup token:  ${bold(setupToken)}`);
 console.log(`\n${bold("Next steps")}`);
 if (setupToken) {
-  console.log(`  1. Open ${publicUrl} and sign in with the setup token above.`);
+  console.log(`  1. Open ${publicUrl}/dashboard and sign in with the setup token above.`);
   console.log(`  2. Go to Access tokens → create an Admin token for yourself → copy it somewhere safe.`);
   console.log(`  3. Sign out, then sign in with your new token.`);
   console.log(`  4. Turn the setup token off (in this folder):`);
@@ -296,11 +299,11 @@ if (setupToken) {
   console.log(`       npx wrangler secret delete BOOTSTRAP_ADMIN_TOKEN`);
   console.log(`  5. Install the aeron CLI: dashboard → Integrations.`);
 } else {
-  console.log(`  Open ${publicUrl} and sign in with your admin token.`);
+  console.log(`  Open ${publicUrl}/dashboard and sign in with your admin token.`);
 }
 if (!domain && /workers\.dev/.test(publicUrl)) {
   console.log(`\n  ${yellow("Tip:")} this address is built into your app builds. If you'd like your own domain`);
   console.log(`  (for example ota.yourcompany.com), set it up before shipping store builds:`);
   console.log(`    npm run setup -- --domain ota.yourcompany.com`);
 }
-console.log(`\n  Guide: ${publicUrl}/#/docs/setup\n`);
+console.log(`\n  Guide: ${publicUrl}/docs#/docs/setup\n`);

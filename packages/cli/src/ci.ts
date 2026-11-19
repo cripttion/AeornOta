@@ -81,7 +81,7 @@ export async function approvalsCommand(api: Api) {
     ...r.flutter.map((x: any) => ({ kind: "flutter", app: x.app_id, what: `${x.release_version} #${x.number} → ${x.channel}`, id: `patch ${x.patch_id}`, message: x.notes ?? "", commit: (x.git_sha ?? "").slice(0, 7), by: (x.created_by ?? "").split(" (")[0] })),
   ];
   table(rows);
-  if (rows.length) log(`\nReview in the console: ${api.server}/#/approvals  (or: aeron review ...)`);
+  if (rows.length) log(`\nReview in the console: ${api.server}/dashboard#/approvals  (or: aeron review ...)`);
 }
 
 export async function reviewCommand(api: Api, args: Args) {

@@ -5,6 +5,7 @@ import { randomId, randomToken, sha256, sha256Hex, hex } from "../lib/crypto";
 import { APP_ID_RE, SHA256_HEX_RE, badRequest, conflict, forbidden, notFound, readJson, requireMatch } from "../lib/http";
 import { notify } from "../lib/notify";
 import { appPolicy, audit, createAppRow, getApp } from "../lib/store";
+import { executeAppDeletion, planAppDeletion } from "../lib/app-delete";
 
 /** Admin API used by the `aeron` CLI and the dashboard. All routes need an Aeron API token. */
 export const admin = new Hono<AppEnv>();
@@ -131,6 +132,24 @@ admin.post("/apps", async (c) => {
   await audit(c.env, actor(c), "app.create", id, { name, kind });
   notify(c.env, c.executionCtx, `📱 ${short(c)} added ${kind} app "${id}"`);
   return c.json({ app: await getApp(c.env, id) }, 201);
+});
+
+/**
+ * Permanently delete an app: its updates, releases, patches, keys, stats, trust rules and stored files.
+ * Admin only (and a signed-in person when Cloudflare Access is on). Body: { confirm: "<app id>" } to delete,
+ * or { dryRun: true } to see what would be removed. Files another app still uses are kept.
+ */
+admin.delete("/apps/:id", async (c) => {
+  const id = requireMatch(c.req.param("id"), APP_ID_RE, "app id");
+  await requireHuman(c, id);
+  const body = await readJson<{ confirm?: string; dryRun?: boolean }>(c).catch(() => ({}) as { confirm?: string; dryRun?: boolean });
+  const plan = await planAppDeletion(c.env, id);
+  if (body.dryRun) return c.json({ dryRun: true, ...plan.summary });
+  if (body.confirm !== id) throw badRequest(`To delete this app permanently, send {"confirm": "${id}"}`);
+  const summary = await executeAppDeletion(c.env, plan);
+  await audit(c.env, actor(c), "app.delete", id, summary);
+  notify(c.env, c.executionCtx, `🗑️ ${short(c)} deleted ${summary.kind} app "${id}" (${summary.updates + summary.patches} updates/patches, ${summary.files} files)`);
+  return c.json({ deleted: true, ...summary });
 });
 
 admin.get("/apps/:id", async (c) => {

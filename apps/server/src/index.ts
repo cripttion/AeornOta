@@ -49,12 +49,25 @@ const CONSOLE_HEADERS: Record<string, string> = {
   "cross-origin-opener-policy": "same-origin",
 };
 
+// Pages: "/" is the project website, "/dashboard" the console, "/docs" the console's public docs reader.
+app.get("/docs", (c) => serveAsset(c.env, c.req.raw, "/dashboard"));
+app.get("/docs/", (c) => serveAsset(c.env, c.req.raw, "/dashboard"));
 app.all("*", async (c) => {
   const res = await c.env.ASSETS.fetch(c.req.raw);
   const out = new Response(res.body, res);
   for (const [k, v] of Object.entries(CONSOLE_HEADERS)) out.headers.set(k, v);
   return out;
 });
+
+async function serveAsset(env: Env, req: Request, path: string) {
+  const url = new URL(req.url);
+  url.pathname = path;
+  url.search = "";
+  const res = await env.ASSETS.fetch(new Request(url.toString(), { method: "GET", headers: req.headers }));
+  const out = new Response(res.body, res);
+  for (const [k, v] of Object.entries(CONSOLE_HEADERS)) out.headers.set(k, v);
+  return out;
+}
 
 export default {
   fetch(req: Request, env: Env, ctx: ExecutionContext) {

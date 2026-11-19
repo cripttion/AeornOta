@@ -92,6 +92,64 @@ export async function appSettings(body, app) {
     app.kind === "flutter"
       ? h("section", { class: "card stack", style: { gap: "6px" } }, h("h2", {}, "Patch signing"), h("p", { class: "muted" }, "Managed on the ", h("a", { href: `#/apps/${app.id}/signing` }, "Signing"), " tab."))
       : h("section", { class: "card stack", style: { gap: "6px" } }, h("h2", {}, "Signing keys"), h("p", { class: "muted" }, "Managed on the ", h("a", { href: `#/apps/${app.id}/keys` }, "Signing keys"), " tab. Store builds without a code signing certificate never receive updates.")),
+    isAdmin ? dangerZone(app) : null,
+  );
+}
+
+/** Admin-only: permanently delete the app after showing exactly what goes and asking for its id. */
+function dangerZone(app) {
+  const open = async () => {
+    let p;
+    try {
+      p = await api("DELETE", `/api/admin/apps/${app.id}`, { dryRun: true });
+    } catch (e) {
+      toast(e.message, "bad");
+      return;
+    }
+    const input = h("input", { type: "text", autocomplete: "off", spellcheck: "false", placeholder: app.id, "aria-label": "Type the app id to confirm" });
+    const go = h("button", { type: "button", class: "btn danger", disabled: true }, "Delete permanently");
+    input.addEventListener("input", () => (go.disabled = input.value.trim() !== app.id));
+    go.addEventListener("click", async () => {
+      go.disabled = true;
+      try {
+        await api("DELETE", `/api/admin/apps/${app.id}`, { confirm: app.id });
+        close();
+        toast(`Deleted ${app.name || app.id}`);
+        await refreshApps();
+        location.hash = "#/overview";
+      } catch (e) {
+        toast(e.message, "bad");
+        go.disabled = false;
+      }
+    });
+    const n = (v, one, many) => `${v} ${v === 1 ? one : many}`;
+    const close = drawer(
+      `Delete ${app.name || app.id}?`,
+      notice("bad", h("strong", {}, "This can't be undone."), h("span", {}, "Phones that have this app keep the code they already run, but they'll never get another update from Aeron.")),
+      h("p", {}, "This permanently removes:"),
+      h(
+        "ul",
+        { class: "md", style: { fontSize: "14px" } },
+        p.kind === "expo"
+          ? [h("li", {}, n(p.updates, "update", "updates")), h("li", {}, n(p.runtimes, "registered store build", "registered store builds")), h("li", {}, n(p.keys, "signing key", "signing keys"))]
+          : [h("li", {}, n(p.releases, "release", "releases")), h("li", {}, n(p.patches, "patch", "patches"))],
+        h("li", {}, `${n(p.files, "stored file", "stored files")} (files another app also uses are kept)`),
+        h("li", {}, "its activity numbers and GitHub trust rules"),
+        p.tokensRevoked ? h("li", {}, `${n(p.tokensRevoked, "access token", "access tokens")} limited to this app (revoked)`) : null,
+        p.tokensNarrowed ? h("li", {}, `this app from ${n(p.tokensNarrowed, "other token", "other tokens")}`) : null,
+      ),
+      h("p", { class: "muted small" }, "The audit log keeps its history. Your signing keys on your computer are not touched."),
+      h("div", { class: "field" }, h("label", {}, "Type ", h("code", {}, app.id), " to confirm"), input),
+      h("div", { class: "btn-row" }, go, h("button", { type: "button", class: "btn ghost", onclick: () => close() }, "Cancel")),
+    );
+    input.focus();
+  };
+  return h(
+    "section",
+    { class: "card stack", style: { gap: "10px", borderColor: "color-mix(in srgb, var(--bad) 40%, var(--line))" } },
+    h("h2", {}, "Delete this app"),
+    h("p", { class: "muted" }, "Removes the app and everything Aeron stores for it. Use this for test apps or apps you no longer ship. Phones keep the code they already have."),
+    h("div", {}, h("button", { type: "button", class: "btn danger", onclick: open }, "Delete app…")),
   );
 }
 

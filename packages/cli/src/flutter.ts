@@ -296,7 +296,7 @@ async function patch(api: Api, args: Args) {
       .request("POST", `/api/admin/flutter/apps/${appId}/patches/${p.id}/meta`, { message: flag(args, "message"), gitSha, repository: process.env.GITHUB_REPOSITORY, ciRunUrl })
       .catch(() => undefined);
     const ch = p.channels.find((c) => c.channel === track);
-    if (ch?.status === "pending") log(`\nPatch #${p.number} for ${rel!.version} is waiting for approval. Nothing reaches phones until a second admin approves it:\n  ${api.server}/#/approvals`);
+    if (ch?.status === "pending") log(`\nPatch #${p.number} for ${rel!.version} is waiting for approval. Nothing reaches phones until a second admin approves it:\n  ${api.server}/dashboard#/approvals`);
     else log(`\nPatch #${p.number} for ${rel!.version} is live on ${track}${ch ? ` at ${ch.rollout_bp / 100}%` : ""}.`);
   }
 }
