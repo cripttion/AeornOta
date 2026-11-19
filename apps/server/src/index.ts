@@ -73,6 +73,11 @@ export default {
   fetch(req: Request, env: Env, ctx: ExecutionContext) {
     // A base_url with a trailing slash makes clients call //api/v1/...; normalise it.
     const url = new URL(req.url);
+    // www.example.com → example.com, keeping the path (people often type www).
+    if (url.hostname.startsWith("www.")) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
     if (url.pathname.includes("//")) {
       url.pathname = url.pathname.replace(/\/{2,}/g, "/");
       req = new Request(url.toString(), req);

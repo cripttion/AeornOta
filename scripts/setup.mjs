@@ -84,7 +84,9 @@ function setConfigValue(key, value) {
 }
 function setCustomDomain(domain) {
   let s = readConfig();
-  const routes = `"routes": [{ "pattern": "${domain}", "custom_domain": true }],`;
+  // A root domain (example.com) also gets www.example.com, which redirects to it.
+  const hosts = domain.split(".").length === 2 ? [domain, `www.${domain}`] : [domain];
+  const routes = `"routes": [${hosts.map((h) => `{ "pattern": "${h}", "custom_domain": true }`).join(", ")}],`;
   if (/"routes":\s*\[[^\]]*\],?/.test(s)) s = s.replace(/"routes":\s*\[[^\]]*\],?/, routes);
   else s = s.replace(/("compatibility_date":\s*"[^"]*",)/, `$1\n  ${routes}`);
   // With routes, wrangler would switch the *.workers.dev address off; keep both working.
